@@ -1,93 +1,196 @@
-# djangoair-erp-task-19-djangoair-erp-system
+# DjangoAir ERP System Analysis and Decomposition
+
+## Project Overview
+
+DjangoAir is an ERP system designed to unify multiple services, primarily a booking and check-in service, within one comprehensive platform. The application supports independent web interfaces for customers and staff, each tailored to meet specific user needs and workflows. It aims to streamline ticket booking, boarding, and check-in processes with the flexibility for role-based staff access, social login, and payment integrations.
+
+---
+
+## Run the application locally
+- Clone the app ```git@git.foxminded.ua:foxstudent107363/djangoair-erp-task-19-djangoair-erp-system.git```
+- Run ```make init``` for installing all dependencies 
+- Run ```make initdb``` for creating of database (optional)
+- Run ```make run``` for running the app
+- Open the url http://localhost:8000 with app page
+- Create your login and password
+
+## Running the tests
+Run ```make test``` in CLI
+
+## Demo
+[See demo by link on AWS](http://ec2-18-192-66-86.eu-central-1.compute.amazonaws.com:8000/)<br/>
 
 
+---
 
-## Getting started
+## Project Structure Breakdown
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### Core Modules
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+1. **Booking and Ticketing**
+   - **Customer Interface**: A simple, intuitive screen for customers to book flights by selecting the destination, date, and number of passengers.
+   - **Staff Interface**: Accessible by staff roles with varying levels of permissions, including check-in, boarding, and flight management.
 
-## Add your files
+2. **Staff Role Management**
+   - Provides role-based access control with predefined roles:
+     - **Gate Manager**: Manages passenger boarding at the gate.
+     - **Check-in Manager**: Handles passenger check-in, adds options, and takes luggage fees.
+     - **Supervisor**: Has full control, including managing flights, options, and staff roles.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+3. **Optional Features**
+   - **Social Login**: Enables login via Google or Facebook.
+   - **Payment Integration**: Adds a step for payment with third-party open-source emulation.
+   - **API and Mobile Integration**: Flask-based API for mobile and third-party services.
 
-```
-cd existing_repo
-git remote add origin https://git.foxminded.ua/foxstudent107363/djangoair-erp-task-19-djangoair-erp-system.git
-git branch -M main
-git push -uf origin main
-```
+4. **Entities and Models**
+   - Core entities for flight management include `Flight`, `Passenger`, `Ticket`, `SeatType`, `Option`, and `Discount`.
 
-## Integrate with your tools
+5. **Notification and Emailing**
+   - Sends tickets and bills to customers via email and provides check-in reminders.
 
-- [ ] [Set up project integrations](https://git.foxminded.ua/foxstudent107363/djangoair-erp-task-19-djangoair-erp-system/-/settings/integrations)
+6. **Frontend Interface**
+   - Customer-facing Vue.js components for booking, account management, and notifications.
+   - Staff interface for handling check-in, boarding, and gate management.
 
-## Collaborate with your team
+---
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Modules and Functionality
 
-## Test and Deploy
+### Detailed Modules
 
-Use the built-in continuous integration in GitLab.
+1. **`flights`**
+   - **Models**:
+     - `Flight`: Stores flight data including destination, date, and status.
+     - `Airplane`: Stores data related to the aircraft.
+     - `SeatType`: Defines seating classes.
+   - **Views**:
+     - Interface for customers to search and book flights.
+   - **Admin**:
+     - Allows supervisors to create, cancel, and manage flights.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+2. **`tickets`**
+   - **Models**:
+     - `Ticket`: Stores ticket and boarding information.
+     - `Option`: Add-ons like luggage, meals, etc.
+     - `Discount`: Manages promotional discounts.
+   - **Views**:
+     - Manages ticket booking, invoicing, and add-on options.
+   - **Admin**:
+     - Provides control over ticketing, options, and discounts.
 
-***
+3. **`passengers`**
+   - **Models**:
+     - `Passenger`: Links to the `User` model, storing customer data.
+   - **Views**:
+     - Customer dashboard with flight history and balance.
+   - **Admin**:
+     - Management of passenger details.
 
-# Editing this README
+4. **`accounts`**
+   - **Models**:
+     - `User`: Stores credentials with roles for different staff permissions.
+   - **Views**:
+     - Handles customer registration, login, and social login.
+   - **Admin**:
+     - Allows supervisors to manage staff roles and access levels.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+5. **`check_in`**
+   - **Models**:
+     - Logs boarding and check-in statuses.
+   - **Views**:
+     - Staff views for managing check-ins and boarding status.
+   - **Admin**:
+     - Enables monitoring of passenger check-in status.
 
-## Suggestions for a good README
+6. **`payment`** (Optional)
+   - **Models**:
+     - `Payment`: Stores payment information and transaction status.
+   - **Views**:
+     - Integrates payment gateway in the booking process.
+   - **Admin**:
+     - Manages transaction records and payment statuses.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+7. **`notifications`**
+   - **Models**: Notification logs.
+   - **Services**:
+     - Sends flight notifications and updates via email/webhooks.
 
-## Name
-Choose a self-explaining name for your project.
+8. **`api`** (Optional)
+   - **Mobile Integration**:
+     - REST and WebSocket API built with Flask.
+   - **Third-Party Integrations**:
+     - Webhooks to provide booking and flight information to third-party systems.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+---
+## UML Class Diagram
+[Link to UNL Diagram](https://drive.google.com/file/d/1IbQ4mTnM8172kWEJiZocK7yCC1lfOYRU/view?usp=sharing)
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Class Diagram Structure
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+---
+## Development Plan
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Priority Steps
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1. **Core Model and Database Setup**
+   - **Goal**: Establish the foundational entities and relationships in PostgreSQL.
+   - **Steps**:
+     - Define essential entities: `Flight`, `Passenger`, `Ticket`, `SeatType`, `Option`, and `Discount`.
+     - Establish relationships between these entities.
+     - Migrate models and ensure integrity of the data structure.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+2. **Customer Booking Interface**
+   - **Goal**: Build the user-facing interface for booking flights.
+   - **Steps**:
+     - Implement the initial screen for customers to select destination, date, and passenger count.
+     - Add a screen to display available seats, pricing, and additional options like meals and luggage.
+     - Create a final booking screen with payment information, confirmation, and email receipt.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+3. **Staff Role-Based Access Control (RBAC)**
+   - **Goal**: Ensure secure access based on staff roles.
+   - **Steps**:
+     - Implement roles for `Gate Manager`, `Check-in Manager`, and `Supervisor` with Django’s permissions system.
+     - Develop workflows for each role, granting access to relevant actions (e.g., gate access, check-in, and flight management).
+     - Set up access restrictions and testing to verify correct role behaviors.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+4. **Notifications System**
+   - **Goal**: Provide timely notifications for bookings and updates.
+   - **Steps**:
+     - Configure email and webhook notifications to inform customers about booking confirmations and updates.
+     - Use Celery for asynchronous task management to ensure notifications are sent without blocking main application threads.
+     - Test notifications across scenarios to confirm reliable delivery.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+5. **Optional Integrations**
+   - **Goal**: Enhance the booking system with social login, payment, and API support.
+   - **Steps**:
+     - **Social Login**: Integrate a social login provider (e.g., Google or Facebook) for enhanced customer convenience.
+     - **Payment Integration**: Implement a third-party payment emulator to provide a realistic booking experience.
+     - **API for Mobile and Third-Party Services**: Use Flask to build a REST API for mobile applications and webhooks for third-party integrations.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Secondary Steps
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. **Enhanced Customer Dashboard**
+   - **Goal**: Improve the user experience with an organized customer dashboard.
+   - **Steps**:
+     - Implement a dashboard displaying future and past flights, balance, and online check-in options.
+     - Ensure user-friendly navigation and design continuity with the booking flow.
 
-## License
-For open source projects, say how it is licensed.
+2. **Testing and Mocks for API**
+   - **Goal**: Guarantee reliability and functionality of the API and notifications.
+   - **Steps**:
+     - Write unit and integration tests for the Flask API.
+     - Create mock webhooks to test third-party service integrations.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+3. **Deployment and Scaling Setup**
+   - **Goal**: Prepare the application for deployment and ensure scalability.
+   - **Steps**:
+     - Dockerize the application for portability and ease of deployment.
+     - Set up Nginx as the web server and conduct deployment tests.
+     - Configure Redis and PostgreSQL for efficient data handling and scalability.
+
+4. **Performance Optimization and Load Testing**
+   - **Goal**: Ensure optimal performance for high-traffic scenarios.
+   - **Steps**:
+     - Optimize database queries and monitor application performance.
+     - Conduct load testing to evaluate system behavior under increased traffic.
+     - Implement caching where needed to reduce load and improve response times.
