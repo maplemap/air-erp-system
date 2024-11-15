@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+
+{% block content %}
+<div class="mt-5 d-flex justify-content-center align-items-center">
+    <div class="title-container text-center max-100 mw-300">
+        <h4 class="mb-3">Sign In</h4>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="form-errors text-danger">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-group">
+                <input type="text" id="id_username" name="username" class="form-control" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="id_password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+            <div class="mb-3 font-size-12 mx-2">
+                You're not registered yet? Let's <a href="{% url 'register' %}">do it</a>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

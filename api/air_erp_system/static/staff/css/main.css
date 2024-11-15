@@ -1,0 +1,134 @@
+:root {
+  --font-color-main: rgba(0, 0, 0, .9);
+  --font-color-main-light: #fff;
+  --dark-bg: #343a40;
+  --hover-bg: #f8f9fa;
+  --common-border-radius: .2rem;
+  --nav-menu-width: 150px;
+  --box-shadow-main: 0 0 0 .2rem rgb(0 0 0 / 18%);
+}
+
+body {
+    color: var(--font-color-main);
+    font-family: 'Roboto Mono', monospace;
+    height: 100vh;
+    margin: 0;
+}
+
+img {
+    width: 100%;
+    height: auto;
+}
+
+.mw-500 {
+  max-width: 500px;
+}
+
+.mw-300 {
+  max-width: 300px;
+}
+
+.font-size-12 {
+  font-size: 12px;
+}
+
+input {
+    font-size: 14px;
+}
+
+button:focus,
+input:focus {
+    outline: none;
+}
+
+select {
+    outline: none;
+    min-width: 50px;
+    height: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.btn {
+   &.btn-primary {
+        color: var(--font-color-main);
+        background-color: transparent;
+        border-color: var(--font-color-main);
+        border-radius: 2px;
+
+        &:focus {
+            box-shadow: var(--box-shadow-main);
+        }
+        &:not(:disabled):not(.disabled):active {
+            color: var(--font-color-main);
+            box-shadow: var(--box-shadow-main);
+            background-color: var(--hover-bg);
+            border-color: var(--font-color-main);
+        }
+    }
+
+    &.btn-dark {
+        color: var(--font-color-main-light);
+        background-color: var(--dark-bg);
+        border-color: var(--dark-bg);
+    }
+}
+
+form {
+    a {
+        color: var(--font-color-main);
+        text-decoration: underline;
+    }
+    a:hover {
+        color: var(--font-color-main);
+        text-decoration: none;
+    }
+}
+
+.form-control {
+    &:focus {
+        border-color: var(--font-color-main);
+        box-shadow: var(--box-shadow-main);
+    }
+}
+
+.dropdown {
+    .btn:focus {
+        box-shadow: none;
+    }
+    .dropdown-menu {
+        padding: 0;
+        border-radius: var(--common-border-radius);
+    }
+    .dropdown-item:hover {
+        background-color: var(--hover-bg);
+    }
+}
+
+.header {
+    margin-top: 10px;
+
+    .header__navbar {
+        margin-left: 100px;
+    }
+
+    .header__brand {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 1rem;
+    }
+
+    .header__brand-icon {
+        font-size: 20px;
+        margin-right: 8px
+    }
+}
+
+
+.content {
+
+    .content-column {
+        padding: 66px 50px 0 50px;
+    }
+}

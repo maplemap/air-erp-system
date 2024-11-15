@@ -1,0 +1,77 @@
+<div id="notification">
+    <div class="dismiss"><i class="fas fa-times"></i></div>
+    <div class="message"></div>
+</div>
+<style>
+    #notification {
+        --notfication-width: 350px;
+        --notfication-top: 20px;
+
+        position: fixed;
+        top: var(--notfication-top);
+        left: calc(50% - var(--notfication-width)/2);
+        width: var(--notfication-width);
+        z-index: 105;
+        text-align: center;
+        font-weight: normal;
+        font-size: 14px;
+        background-color: #dddddd;
+        padding: 8px 20px;
+        border: 1px solid black;
+        transform: translateY(calc(-100% - var(--notfication-top)));
+        transition: transform 0.2s;
+        overflow: hidden;
+    }
+    #notification.shown {
+        transform: translateY(0);
+    }
+    #notification .dismiss {
+        cursor: pointer;
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        top: 0;
+        right: 0;
+    }
+    #notification .message {
+        min-height: 21px;
+    }
+</style>
+<script>
+    class Notification {
+        constructor() {
+            this.$notification = $('#notification');
+            this.$notificationDismiss = this.$notification.find('.dismiss');
+            this.$notificationMessage = this.$notification.find('.message');
+            this.initEvents()
+        }
+
+        initEvents() {
+            this.$notificationDismiss.click(() => this.close());
+        }
+
+        show(message) {
+           this.$notificationMessage.text(message);
+           this.$notification.addClass("shown");
+
+           this.runAutoclose();
+        }
+
+        runAutoclose() {
+            const timeout = setTimeout(() => {
+                this.close();
+                clearTimeout(timeout);
+            }, 2000)
+        }
+
+        close() {
+           this.$notification.removeClass("shown");
+            this.$notificationMessage.empty();
+        }
+    }
+
+    const Notificator = new Notification()
+</script>
