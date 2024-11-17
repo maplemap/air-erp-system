@@ -1,5 +1,7 @@
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager, Permission, Group
 from django.db import models
+from .roles import CUSTOMER, ROLE_CHOICES
 
 
 class CustomUserManager(BaseUserManager):
@@ -20,12 +22,21 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    first_name = models.CharField(max_length=150, default='')
+    last_name = models.CharField(max_length=150, default='')
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default=CUSTOMER,
+    )
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    groups = models.ManyToManyField(Group, related_name='user_set', blank=True)
+    user_permissions = models.ManyToManyField(Permission, related_name='user_set', blank=True)
 
     objects = CustomUserManager()
 

@@ -1,11 +1,24 @@
 services:
   api:
     command: >
-      bash -c "python manage.py makemigrations &&
-               python manage.py migrate --noinput &&
-               python manage.py runserver 0.0.0.0:8000"
+      bash -c "
+        python manage.py makemigrations &&
+        python manage.py migrate --noinput &&
+        sh ./scripts/create_groups.sh && 
+        sh ./scripts/create_supervisor_user.sh &&
+        python manage.py runserver 0.0.0.0:8000
+      "
     environment:
       - DEBUG=1
     volumes:
       - ./api:/var/app
       - ./static:/var/static
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    command: npm run start
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./frontend/src:/var/app/src

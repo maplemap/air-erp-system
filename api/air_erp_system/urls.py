@@ -1,22 +1,26 @@
 from django.conf.urls.static import static
 from django.urls import include, path
 
+from django.shortcuts import redirect
+
 from app import settings
 
 from .views import (
-    LoginViewAPI,
-    LogoutViewAPI,
-    RegisterViewAPI,
+    AuthSignInViewAPI,
+    AuthLogoutViewAPI,
+    AuthSignUpViewAPI,
+    AuthRefreshTokenView
 )
 
-api_patterns = [
-    path('register/', RegisterViewAPI.as_view(), name='city'),
-    path('login/', LoginViewAPI.as_view(), name='subscribe'),
-    path('logout/', LogoutViewAPI.as_view(), name='subscription'),
+auth_patterns = [
+    path('sign-up/', AuthSignUpViewAPI.as_view(), name='sign_up'),
+    path('sign-in/', AuthSignInViewAPI.as_view(), name='sign_in'),
+    path('logout/', AuthLogoutViewAPI.as_view(), name='logout'),
+    path('refresh/', AuthRefreshTokenView.as_view(), name='refresh_token'),
 ]
 
 urlpatterns = [
-    path('api/', include((api_patterns, 'app_api'), namespace='api')),
+    path('auth/', include((auth_patterns, 'auth_api'), namespace='auth')),
 ]
 
 if settings.DEBUG:
