@@ -1,6 +1,4 @@
 node_modules
-build
-.eslintrc.js
-src/reportWebVitals.js
-config-overrides.js
+.eslintrc.cjs
 webStorm.config.js
+postcss.config.cjs

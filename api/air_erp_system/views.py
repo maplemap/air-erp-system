@@ -23,7 +23,12 @@ class AuthSignUpViewAPI(APIView):
             return Response({
                 "message": "User created successfully!",
                 "access": new_access_token,
-                "refresh": str(custom_refresh_token)
+                "refresh": str(custom_refresh_token),
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                }
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -41,6 +46,11 @@ class AuthSignInViewAPI(APIView):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                }
             }, status=status.HTTP_200_OK)
 
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)

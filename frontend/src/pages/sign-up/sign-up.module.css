@@ -1,0 +1,12 @@
+/*noinspection CssInvalidFunction*/
+.wrapper {
+    display: flex;
+    max-width: toRem(300);
+    padding-top: toRem(110);
+    align-items: center;
+    margin: 0 auto;
+}
+
+.form {
+    width: 100%;
+}

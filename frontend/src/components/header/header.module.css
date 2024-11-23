@@ -1,0 +1,10 @@
+@import '@/styles/colors.module.css';
+
+.brand {
+    color: var(--black100);
+    text-decoration: none;
+}
+
+.brandIcon {
+    fill: var(--black100);
+}

@@ -1,0 +1,17 @@
+@import "@/styles/colors.module.css";
+
+.mantine-Input-input {
+    &:focus-within {
+        border-color: var(--darkGrey100);
+    }
+}
+
+button {
+    &:hover {
+        background-color: var(--darkGrey10) !important;
+    }
+}
+
+a {
+    color: var(--black100);
+}
