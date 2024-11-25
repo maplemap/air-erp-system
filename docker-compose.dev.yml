@@ -4,12 +4,27 @@ services:
       bash -c "
         python manage.py makemigrations &&
         python manage.py migrate --noinput &&
-        sh ./scripts/create_groups.sh && 
-        sh ./scripts/create_supervisor_user.sh &&
+        python manage.py init_groups &&
+        python manage.py init_base_users &&
+        python manage.py create_seat_types &&
+        python manage.py create_airplanes &&
+        python manage.py create_flights &&
         python manage.py runserver 0.0.0.0:8000
       "
     environment:
       - DEBUG=1
+      - SUPERVISOR_USERNAME=${SUPERVISOR_USERNAME}
+      - SUPERVISOR_PASSWORD=${SUPERVISOR_PASSWORD}
+      - SUPERVISOR_EMAIL=${SUPERVISOR_EMAIL}
+      - GATE_MANAGER_USERNAME=${GATE_MANAGER_USERNAME}
+      - GATE_MANAGER_PASSWORD=${GATE_MANAGER_PASSWORD}
+      - GATE_MANAGER_EMAIL=${GATE_MANAGER_EMAIL}
+      - CHECKIN_MANAGER_USERNAME=${CHECKIN_MANAGER_USERNAME}
+      - CHECKIN_MANAGER_PASSWORD=${CHECKIN_MANAGER_PASSWORD}
+      - CHECKIN_MANAGER_EMAIL=${CHECKIN_MANAGER_EMAIL}
+      - CUSTOMER_USERNAME=${CUSTOMER_USERNAME}
+      - CUSTOMER_PASSWORD=${CUSTOMER_PASSWORD}
+      - CUSTOMER_EMAIL=${CUSTOMER_EMAIL}
     volumes:
       - ./api:/var/app
       - ./static:/var/static

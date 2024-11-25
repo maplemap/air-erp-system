@@ -8,8 +8,9 @@ services:
       bash -c "
         python manage.py makemigrations --noinput
         python manage.py migrate --noinput &&
-        sh ./scripts/create_groups.sh && 
-        sh ./scripts/create_supervisor_user.sh &&
+        python manage.py create_seat_types &&
+        python manage.py create_airplanes &&
+        python manage.py create_flights &&
         gunicorn app.wsgi:application --bind 0.0.0.0:8000
       "
     ports:
@@ -21,9 +22,6 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_HOST=${DB_HOST}
-      - SUPERVISOR_USERNAME=${SUPERVISOR_USERNAME}
-      - SUPERVISOR_PASSWORD=${SUPERVISOR_PASSWORD}
-      - SUPERVISOR_EMAIL=${SUPERVISOR_EMAIL}
     depends_on:
       - api_db
     networks:
