@@ -1,10 +1,10 @@
 export const buttonTheme = {
   styles: {
     root: {
-      fontSize: 'var(--mantine-font-size-md)',
-      backgroundColor: 'transparent',
       color: 'var(--black100)',
-      borderColor: 'var(--black100)',
+      '--button-bg': 'transparent',
+      '--button-bd': '1px solid var(--black100)',
+      '--button-hover': 'var(--darkGrey10)',
     },
   },
 };

@@ -1,22 +1,18 @@
-import styles from './user-box.module.css';
-import {useAuth} from '@/services/auth';
-import {Menu, Box, Text} from '@/ui-kit';
-import {IconLogout} from '@/ui-kit/icons';
 import {useNavigate} from 'react-router-dom';
-import {ROUTES} from '@/routes/constants.ts';
+import {ROUTES} from '@/routes/constants';
+import {useAppStore} from '@/services/store';
+import {Box, Menu, Text} from '@/ui-kit';
+import {IconLogout} from '@/ui-kit/icons';
+import styles from './user-box.module.css';
 
 export const UserBox = () => {
-  const {user, logout} = useAuth();
+  const {user} = useAppStore();
   const navigate = useNavigate();
 
   if (!user) {
     return null;
   }
 
-  const onHandleClickLogout = async () => {
-    await logout();
-    navigate(ROUTES.SIGN_IN);
-  };
   return (
     <Menu shadow="md" width={200}>
       <Menu.Target>
@@ -25,7 +21,7 @@ export const UserBox = () => {
       <Menu.Dropdown>
         <Menu.Item
           leftSection={<IconLogout size={14} />}
-          onClick={onHandleClickLogout}
+          onClick={() => navigate(ROUTES.LOGOUT)}
         >
           <Text size="md">Logout</Text>
         </Menu.Item>

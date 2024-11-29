@@ -1,4 +1,4 @@
-import {LoginParams, useAuth} from '@/services/auth';
+import {LoginParams, useAuth} from '@/services/api/adapters';
 import {Link, useNavigate} from 'react-router-dom';
 import {
   Stack,

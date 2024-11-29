@@ -1,4 +1,6 @@
 import axios from 'axios';
+import {STORAGE_KEY} from '@/constants.ts';
+import {ROUTES} from '@/routes/constants.ts';
 import {API_ROUTES} from './constants.js';
 
 const BASE_URL = '/api/';
@@ -10,8 +12,13 @@ const api = axios.create({
   },
 });
 
-const getRefreshToken = () => localStorage.getItem('refreshToken');
-const getAccessToken = () => localStorage.getItem('accessToken');
+const getRefreshToken = () => localStorage.getItem(STORAGE_KEY.REFRESH_TOKEN);
+const getAccessToken = () => localStorage.getItem(STORAGE_KEY.ACCESS_TOKEN);
+const clearAllData = () => {
+  localStorage.removeItem(STORAGE_KEY.ACCESS_TOKEN);
+  localStorage.removeItem(STORAGE_KEY.REFRESH_TOKEN);
+  localStorage.removeItem(STORAGE_KEY.APP_DATA);
+};
 
 const refreshTokens = async () => {
   try {
@@ -20,13 +27,14 @@ const refreshTokens = async () => {
     });
     const {access, refresh} = response.data;
 
-    localStorage.setItem('access_token', access);
-    localStorage.setItem('refresh_token', refresh);
+    localStorage.setItem(STORAGE_KEY.ACCESS_TOKEN, access);
+    localStorage.setItem(STORAGE_KEY.REFRESH_TOKEN, refresh);
 
     return access;
   } catch (error) {
     console.error('Refresh token error', error);
-    throw error;
+    clearAllData();
+    window.location.href = ROUTES.SIGN_IN;
   }
 };
 
@@ -60,8 +68,8 @@ api.interceptors.response.use(
 );
 
 export const apiService = {
-  get: async (url, params = {}) => await api.get(url, {params}),
-  post: async (url, data = {}) => await api.post(url, data),
-  put: async (url, data = {}) => await api.put(url, data),
-  delete: async (url, params = {}) => await api.delete(url, {params}),
+  get: async (url: string, params = {}) => await api.get(url, {params}),
+  post: async (url: string, data = {}) => await api.post(url, data),
+  put: async (url: string, data = {}) => await api.put(url, data),
+  delete: async (url: string, params = {}) => await api.delete(url, {params}),
 };

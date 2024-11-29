@@ -1,7 +1,8 @@
+import {ComponentType} from 'react';
 import {Navigate} from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
+import {STORAGE_KEY} from '@/constants.ts';
 import {ROUTES} from '@/routes/constants.js';
-import {ComponentType} from 'react';
 
 type PrivatePageProps = {
   component: ComponentType<unknown>;
@@ -12,7 +13,8 @@ export const PrivatePage = ({
   component: Component,
   allowedRoles,
 }: PrivatePageProps) => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem(STORAGE_KEY.ACCESS_TOKEN);
+
   if (!token) {
     return <Navigate to={ROUTES.SIGN_IN} />;
   }

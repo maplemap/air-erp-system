@@ -1,6 +1,8 @@
 import {useCallback} from 'react';
+import {STORAGE_KEY} from '@/constants.ts';
+import {useUser} from '@/services/api/adapters/user.ts';
 import {useAppStore} from '@/services/store';
-import {API_ROUTES} from '../api/constants';
+import {API_ROUTES} from '../../api/constants';
 import {apiService} from '../api';
 
 export type LoginParams = {
@@ -15,12 +17,18 @@ export type RegistrationParams = LoginParams & {
 };
 
 const saveTokens = (accessToken: string, refreshToken: string) => {
-  localStorage.setItem('accessToken', accessToken);
-  localStorage.setItem('refreshToken', refreshToken);
+  localStorage.setItem(STORAGE_KEY.ACCESS_TOKEN, accessToken);
+  localStorage.setItem(STORAGE_KEY.REFRESH_TOKEN, refreshToken);
 };
 
 export const useAuth = () => {
-  const {user, setUser, deleteUser} = useAppStore();
+  const {setUser} = useAppStore();
+  const {getUser} = useUser();
+
+  const getUserData = useCallback(async () => {
+    const user = await getUser();
+    setUser(user);
+  }, [getUser, setUser]);
 
   const login = useCallback(
     async ({username, password}: LoginParams) => {
@@ -31,12 +39,12 @@ export const useAuth = () => {
         });
 
         saveTokens(data.access, data.refresh);
-        setUser(data.user);
+        getUserData();
       } catch (error) {
         console.error('Login error:', error);
       }
     },
-    [setUser],
+    [getUserData],
   );
 
   const registration = useCallback(
@@ -56,22 +64,13 @@ export const useAuth = () => {
       });
 
       saveTokens(data.access, data.refresh);
-      setUser(data.user);
+      getUserData();
     },
-    [setUser],
+    [getUserData],
   );
 
-  const logout = useCallback(async () => {
-    await apiService.post(API_ROUTES.LOGOUT);
-    deleteUser();
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-  }, [deleteUser]);
-
   return {
-    user,
     login,
-    logout,
     registration,
   };
 };

@@ -6,12 +6,6 @@
     }
 }
 
-button {
-    &:hover {
-        background-color: var(--darkGrey10) !important;
-    }
-}
-
 a {
     color: var(--black100);
 }

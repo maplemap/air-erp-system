@@ -1,11 +1,10 @@
-import {createTheme} from '@mantine/core';
-import {inputTheme, buttonTheme} from './component-themes';
-
 import '@fontsource/roboto-mono';
 import '@fontsource/roboto-mono/400.css';
 import '@fontsource/roboto-mono/500.css';
 import '@fontsource/roboto-mono/600.css';
-
+import {createTheme} from '@mantine/core';
+import '@mantine/dates/styles.css';
+import {buttonTheme, inputTheme} from './component-themes';
 import './global-style-ovveride.css';
 
 export const theme = createTheme({

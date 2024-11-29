@@ -1,5 +1,6 @@
 import {StoreApi, UseBoundStore, create} from 'zustand';
 import {persist} from 'zustand/middleware';
+import {STORAGE_KEY} from '@/constants.ts';
 
 type TState = {
   user: User | null;
@@ -22,7 +23,7 @@ export const useAppStore: UseBoundStore<StoreApi<TState & Actions>> = create(
       deleteUser: () => set(() => ({user: null})),
     }),
     {
-      name: 'app-store',
+      name: STORAGE_KEY.APP_DATA,
       partialize: (state) => ({user: state.user}),
     },
   ),

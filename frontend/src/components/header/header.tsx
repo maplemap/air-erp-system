@@ -1,9 +1,9 @@
-import {UserBox} from '@/components/user-box';
-import styles from './header.module.css';
-import {ROUTES} from '@/routes/constants';
-import {IconPlaneDeparture} from '@/ui-kit/icons';
-import {Text, Box, Group} from '@/ui-kit';
 import {Link} from 'react-router-dom';
+import {UserBox} from '@/components/user-box';
+import {ROUTES} from '@/routes/constants';
+import {Box, Group, Text} from '@/ui-kit';
+import {IconPlaneDeparture} from '@/ui-kit/icons';
+import styles from './header.module.css';
 
 export const Header = () => (
   <Box p="lg">

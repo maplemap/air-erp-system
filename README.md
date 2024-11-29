@@ -49,8 +49,8 @@ Run ```make test``` in CLI
    - Sends tickets and bills to customers via email and provides check-in reminders.
 
 6. **Frontend Interface**
-   - Customer-facing Vue.js components for booking, account management, and notifications.
-   - Staff interface for handling check-in, boarding, and gate management.
+   - Customer-facing React.js components for booking, account management, and notifications.
+   - Staff interface for handling check-in, boarding, and gate management.__
 
 ---
 

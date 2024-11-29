@@ -1,5 +1,7 @@
 services:
   api:
+    tty: true
+    stdin_open: true
     build:
       context: api
     image: air-erp-api:1.0

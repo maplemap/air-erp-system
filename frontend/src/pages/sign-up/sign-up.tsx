@@ -1,4 +1,4 @@
-import {RegistrationParams, useAuth} from '@/services/auth';
+import {RegistrationParams, useAuth} from '@/services/api/adapters';
 import {Link, useNavigate} from 'react-router-dom';
 import {Button, Center, Group, Stack, Text, TextInput} from '@/ui-kit';
 import styles from '@/pages/sign-in/sign-in.module.css';

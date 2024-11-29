@@ -1,1 +1,0 @@
-export {PrimaryPage} from './primary';

@@ -1,13 +1,14 @@
 import {Navigate} from 'react-router-dom';
+import {PrimaryLayout} from '@/layouts';
 import {
-  SignInPage,
+  CustomerPage,
+  IsNotAuthorized,
   NotFoundPage,
   PrivatePage,
-  IsNotAuthorized,
+  SignInPage,
   SignUpPage,
-  PrimaryPage,
 } from '@/pages';
-import {PrimaryLayout} from '@/layouts';
+import {LogoutPage} from '@/pages/logout';
 import {ROUTES} from './constants';
 
 export const routes = [
@@ -18,7 +19,7 @@ export const routes = [
         path: ROUTES.BASE,
         element: (
           <PrivatePage
-            component={PrimaryPage}
+            component={CustomerPage}
             allowedRoles={['customer', 'supervisor']}
           />
         ),
@@ -38,6 +39,10 @@ export const routes = [
             <SignUpPage />
           </IsNotAuthorized>
         ),
+      },
+      {
+        path: ROUTES.LOGOUT,
+        element: <LogoutPage />,
       },
       {
         path: ROUTES.NOT_FOUND,

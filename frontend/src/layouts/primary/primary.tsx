@@ -9,7 +9,7 @@ export const PrimaryLayout = () => (
         <Header />
       </ErrorBoundary>
     </AppShell.Header>
-    <AppShell.Main>
+    <AppShell.Main px="lg">
       <ErrorBoundary message="Something went wrong. Please update later">
         <Outlet />
       </ErrorBoundary>

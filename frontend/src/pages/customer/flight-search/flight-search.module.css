@@ -1,0 +1,8 @@
+.fieldsWrapper {
+    max-width: 800px;
+}
+
+.input {
+    flex: 1;
+    min-width: 200px;
+}
