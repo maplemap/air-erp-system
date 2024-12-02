@@ -9,7 +9,11 @@ from .views import (
     AuthSignUpViewAPI,
     AuthRefreshTokenView,
     FlightSearchAPI,
-    UserView
+    UserView,
+    FlightDetailsAPIView,
+    FlightDeparturesAPI,
+    FlightDestinationsAPI,
+    FlightDatesAPI
 )
 
 auth_patterns = [
@@ -20,8 +24,11 @@ auth_patterns = [
 ]
 
 flight_patterns = [
+    path('departures/', FlightDeparturesAPI.as_view(), name='departures'),
+    path('destinations/', FlightDestinationsAPI.as_view(), name='destinations'),
+    path('dates/', FlightDatesAPI.as_view(), name='dates'),
     path('search/', FlightSearchAPI.as_view(), name='search'),
-    # path('details/', AuthSignInViewAPI.as_view(), name='sign_in'),
+    path('details/', FlightDatesAPI.as_view(), name='details'),
     # path('booking/', AuthLogoutViewAPI.as_view(), name='logout'),
     # path('check_in/', AuthRefreshTokenView.as_view(), name='refresh_token'),
 ]

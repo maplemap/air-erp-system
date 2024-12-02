@@ -62,13 +62,18 @@ class SeatType(models.Model):
     price = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return self.seat_type
 
 
 class Airplane(models.Model):
-    model = models.CharField(max_length=100)
+    model = models.CharField(max_length=100, unique=True)
     seat_capacity = models.IntegerField()
     seat_types = models.ManyToManyField(SeatType, related_name="airplanes")
+
+    def save(self, *args, **kwargs):
+        if self.seat_capacity <= 0:
+            raise ValueError("Seat capacity must be greater than 0")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.model
@@ -82,22 +87,41 @@ class Flight(models.Model):
     arrival_time = models.DateTimeField()
     airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="flights")
 
+    def available_seats(self):
+        total_seats = self.airplane.seat_capacity
+        booked_seats = Seat.objects.filter(airplane=self.airplane, is_booked=True).count()
+        return total_seats - booked_seats
+
+    def save(self, *args, **kwargs):
+        if self.departure_time >= self.arrival_time:
+            raise ValueError("Departure time must be earlier than arrival time")
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.code}: {self.departure_place} -> {self.arrival_place}"
 
 class Seat(models.Model):
-    airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE)
-    seat_type = models.ForeignKey(SeatType, on_delete=models.CASCADE)
+    airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="seats")
+    seat_type = models.ForeignKey(SeatType, on_delete=models.CASCADE, related_name="seats")
     is_booked = models.BooleanField(default=False)
     seat_number = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return self.seat_type
+        return f"{self.seat_type.seat_type} - Seat {self.seat_number}"
 
 
 class Options(models.Model):
     name = models.CharField(max_length=255)
-    price = models.IntegerField()
+    price = models.IntegerField()  # Вартість
+    description = models.TextField(blank=True, null=True)
+    category = models.CharField(
+        max_length=50,
+        choices=[
+            ('baggage', 'Baggage'),
+            ('meal', 'Meal'),
+            ('service', 'Service'),
+        ]
+    )
 
     def __str__(self):
         return self.name
@@ -121,6 +145,11 @@ class Ticket(models.Model):
     price = models.IntegerField(null=True, blank=True)
     seat = models.OneToOneField(Seat, on_delete=models.CASCADE)
     options = models.ManyToManyField(Options, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.price is not None and self.price < 0:
+            raise ValueError("Price cannot be negative")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Ticket #{self.ticket_number} for {self.first_name} {self.last_name}"

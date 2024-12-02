@@ -1,25 +1,25 @@
-import {FlightSearchResultsTable} from '@/pages/customer/flight-search-results/flight-search-results-table.tsx';
 import {Box, Center, LoadingOverlay} from '@/ui-kit';
+import {FlightSearchResultsTable} from './flight-search-results-table.tsx';
 import styles from './flight-search-results.module.css';
 
 type FlightSearchResultsProps = {
-  flights: Flight[] | null;
-  loading: boolean;
+  data: Flight[] | null;
+  loading?: boolean;
 };
 
 export const FlightSearchResults = (props: FlightSearchResultsProps) => {
-  const {flights, loading} = props;
+  const {data, loading} = props;
 
   const getResults = () => {
-    if (!flights) {
+    if (!data) {
       return null;
     }
 
-    if (flights.length === 0) {
+    if (data.length === 0) {
       return <Center>No flights were found. Please try again</Center>;
     }
 
-    return <FlightSearchResultsTable data={flights} />;
+    return <FlightSearchResultsTable data={data} />;
   };
 
   return (

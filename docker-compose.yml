@@ -13,6 +13,7 @@ services:
         python manage.py create_seat_types &&
         python manage.py create_airplanes &&
         python manage.py create_flights &&
+        python manage.py generate_options
         gunicorn app.wsgi:application --bind 0.0.0.0:8000
       "
     ports:

@@ -9,6 +9,7 @@ services:
         python manage.py create_seat_types &&
         python manage.py create_airplanes &&
         python manage.py create_flights &&
+        python manage.py generate_options &&
         python manage.py runserver 0.0.0.0:8000
       "
     environment:

@@ -35,5 +35,5 @@ export const validateConfirmPassword = (
 
 export const validateNonEmpty =
   (fieldName: string) =>
-  (value: string | Date | null): string | null =>
+  (value: string | Date | null | number): string | null =>
     value ? null : `${fieldName} should not be empty`;
