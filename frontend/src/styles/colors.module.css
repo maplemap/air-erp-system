@@ -1,7 +1,11 @@
 :root {
   --black100: #000000;
-  --black90: #1c1c1c;
-  --black80: #333333;
+  --black90: #000000E5;
+  --black80: #333333CC;
+
+  --grey100: #C4C4C4;
+
+  --white100: #ffffff;
 
   --darkGrey100: #717070;
   --darkGrey90: #717070e6;

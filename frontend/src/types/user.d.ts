@@ -3,3 +3,5 @@ type User = {
   email: string;
   username: string;
 };
+
+type Roles = 'customer' | 'supervisor';

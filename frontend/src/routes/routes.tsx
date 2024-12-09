@@ -1,7 +1,8 @@
+import {lazy} from 'react';
 import {Navigate} from 'react-router-dom';
+import {ROLE} from '@/constants.ts';
 import {PrimaryLayout} from '@/layouts';
 import {
-  CustomerPage,
   IsNotAuthorized,
   NotFoundPage,
   PrivatePage,
@@ -11,16 +12,18 @@ import {
 import {LogoutPage} from '@/pages/logout';
 import {ROUTES} from './constants';
 
+const CustomerModule = lazy(() => import('@/modules/customer'));
+
 export const routes = [
   {
     element: <PrimaryLayout />,
     children: [
       {
-        path: ROUTES.BASE,
+        path: '*',
         element: (
           <PrivatePage
-            component={CustomerPage}
-            allowedRoles={['customer', 'supervisor']}
+            component={CustomerModule}
+            allowedRoles={[ROLE.CUSTOMER, ROLE.SUPERVISOR]}
           />
         ),
       },

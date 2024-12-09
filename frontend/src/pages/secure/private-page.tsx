@@ -6,7 +6,7 @@ import {ROUTES} from '@/routes/constants.js';
 
 type PrivatePageProps = {
   component: ComponentType<unknown>;
-  allowedRoles: string[];
+  allowedRoles: Roles[];
 };
 
 export const PrivatePage = ({
@@ -20,7 +20,7 @@ export const PrivatePage = ({
   }
 
   const decodedToken = jwtDecode<JWTToken>(token);
-  const userRole = decodedToken.role;
+  const userRole = decodedToken.role as Roles;
 
   if (!allowedRoles.includes(userRole)) {
     return <Navigate to={ROUTES.NOT_FOUND} />;

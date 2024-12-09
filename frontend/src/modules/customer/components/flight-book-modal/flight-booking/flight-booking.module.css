@@ -1,0 +1,8 @@
+.formFooter {
+    position: sticky;
+    bottom: 0;
+    z-index: 1000;
+    border-top: toRem(1) solid var(--grey100);
+    background-color: var(--white100);
+    margin-top: toRem(50) ;
+}

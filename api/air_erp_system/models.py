@@ -58,8 +58,42 @@ class SeatType(models.Model):
     )
 
     seat_type = models.CharField(max_length=255, choices=SEAT_TYPE, default=ECONOMY_CLASS)
-    quantity = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0)  # Загальна кількість місць
+    reserved_quantity = models.IntegerField(default=0)  # Зарезервовані місця
     price = models.IntegerField()
+
+    def available_seats(self, flight=None):
+        if flight:
+            total_seats = Seat.objects.filter(
+                flight=flight,
+                seat_type=self
+            ).count()
+
+            booked_seats = Seat.objects.filter(
+                flight=flight,
+                seat_type=self,
+                is_booked=True
+            ).distinct().count()
+
+            return total_seats - booked_seats
+        return self.quantity - self.reserved_quantity
+
+    def reserve_seats(self, count, flight):
+        available_seats = self.available_seats(flight)
+        print(available_seats)
+
+        if count > available_seats:
+            raise ValueError(f"Not enough available seats for flight {flight.id}")
+
+        seats_to_reserve = Seat.objects.filter(
+            flight=flight,
+            seat_type=self,
+            is_booked=False
+        )[:count]
+
+        for seat in seats_to_reserve:
+            seat.is_booked = True
+            seat.save()
 
     def __str__(self):
         return self.seat_type
@@ -86,25 +120,41 @@ class Flight(models.Model):
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
     airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="flights")
-
-    def available_seats(self):
-        total_seats = self.airplane.seat_capacity
-        booked_seats = Seat.objects.filter(airplane=self.airplane, is_booked=True).count()
-        return total_seats - booked_seats
+    available_seats_count = models.IntegerField(default=0)  # Нове поле
 
     def save(self, *args, **kwargs):
         if self.departure_time >= self.arrival_time:
             raise ValueError("Departure time must be earlier than arrival time")
+
+        if not self.pk:
+            self.available_seats_count = self.airplane.seat_capacity
+
         super().save(*args, **kwargs)
+
+    def update_available_seats(self):
+        total_seats = self.airplane.seat_capacity
+        booked_seats = Seat.objects.filter(airplane=self.airplane, is_booked=True,
+                                           flight=self).count()
+
+        self.available_seats_count = total_seats - booked_seats
+        self.save()
 
     def __str__(self):
         return f"{self.code}: {self.departure_place} -> {self.arrival_place}"
 
+
 class Seat(models.Model):
     airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="seats")
+    flight = models.ForeignKey(Flight, on_delete=models.CASCADE, related_name="seats", null=True, blank=True)
     seat_type = models.ForeignKey(SeatType, on_delete=models.CASCADE, related_name="seats")
     is_booked = models.BooleanField(default=False)
     seat_number = models.IntegerField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.flight:
+            self.flight.update_available_seats()
 
     def __str__(self):
         return f"{self.seat_type.seat_type} - Seat {self.seat_number}"
@@ -126,25 +176,31 @@ class Options(models.Model):
     def __str__(self):
         return self.name
 
-
-class Ticket(models.Model):
+class Passenger(models.Model):
     MALE = 'male'
     FEMALE = 'female'
-    GENDER = (
+    GENDER_CHOICES = [
         (MALE, 'Male'),
         (FEMALE, 'Female'),
-    )
+    ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
-    ticket_number = models.CharField(max_length=10, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    gender = models.CharField(max_length=30, choices=GENDER)
-    passport_number = models.CharField(max_length=25)
+    gender = models.CharField(max_length=30, choices=GENDER_CHOICES)
+    passport_number = models.CharField(max_length=25, unique=True)
+    is_paid = models.BooleanField(default=False)  # Поле для відмічення оплати
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.passport_number})"
+
+class Ticket(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
+    passenger = models.ForeignKey(Passenger, on_delete=models.CASCADE, related_name='tickets', null=True, blank=True)
+    ticket_number = models.CharField(max_length=10, unique=True)
     price = models.IntegerField(null=True, blank=True)
     seat = models.OneToOneField(Seat, on_delete=models.CASCADE)
-    options = models.ManyToManyField(Options, blank=True)
+    options = models.ManyToManyField('Options', blank=True)
 
     def save(self, *args, **kwargs):
         if self.price is not None and self.price < 0:
@@ -152,4 +208,4 @@ class Ticket(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Ticket #{self.ticket_number} for {self.first_name} {self.last_name}"
+        return f"Ticket #{self.ticket_number} for {self.passenger}"

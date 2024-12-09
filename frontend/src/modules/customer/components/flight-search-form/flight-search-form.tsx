@@ -1,33 +1,37 @@
 import {useCallback, useEffect, useRef} from 'react';
-import {formatDate} from '@/libs/date';
-import {FlightSearchResults} from '@/pages/customer/flight-search/flight-search-results';
-import {useSearchFlights} from '@/services/api/adapters';
+import {SERVER_TIME_FORMAT, formatDate} from '@/libs/date';
+import {
+  PASSENGERS_COUNT_DEFAULT,
+  SearchFlightsParams,
+  useSearchFlights,
+} from '@/modules/customer/services/api/adapters';
 import {DatePickerInput, Group, Select, Stack} from '@/ui-kit';
 import {useForm, validateNonEmpty} from '@/ui-kit/form';
 import {NumberInput} from '@mantine/core';
-import styles from './flight-search.module.css';
+import styles from './flight-search-form.module.css';
 
-const PASSENGERS_COUNT_DEFAULT = 1;
-
-type FlightSearchParams = {
+export type FlightSearchFormData = {
   departure: string;
   destination: string;
   date: Date | null;
   passengers: number;
 };
 
-export const FlightSearch = () => {
+type FlightSearchFormProps = {
+  onChange: (params: SearchFlightsParams) => void;
+};
+
+export const FlightSearchForm = (props: FlightSearchFormProps) => {
+  const {onChange} = props;
   const {
-    flights,
-    loading,
     searchFlights,
     departures,
     destinations,
-    dates: availableDates,
+    dates,
     getDestinations,
     getDates,
   } = useSearchFlights();
-  const form = useForm<FlightSearchParams>({
+  const form = useForm<FlightSearchFormData>({
     initialValues: {
       departure: '',
       destination: '',
@@ -48,10 +52,16 @@ export const FlightSearch = () => {
       const params =
         departure !== departureRef.current
           ? {departure}
-          : {departure, destination, passengers, date};
-      searchFlights(params);
+          : {
+              departure,
+              destination,
+              passengers,
+              ...(date ? {date: formatDate(date, 'YY/MM/DD')} : null),
+            };
+
+      onChange(params);
     }
-  }, [date, departure, destination, passengers, searchFlights]);
+  }, [date, departure, destination, onChange, passengers, searchFlights]);
 
   const cleanFormFields = useCallback(() => {
     form.setFieldValue('destination', '');
@@ -85,12 +95,12 @@ export const FlightSearch = () => {
   };
 
   const filterDatePickerDates = (date: Date) =>
-    !availableDates
-      .map((availableDate) => formatDate(availableDate, 'YY/MM/DD'))
-      .includes(formatDate(date, 'YY/MM/DD'));
+    !dates
+      .map((date) => formatDate(date, SERVER_TIME_FORMAT))
+      .includes(formatDate(date, SERVER_TIME_FORMAT));
 
   return (
-    <Stack w="100%" align="center" gap={100}>
+    <Stack w="100%" align="center">
       <form className={styles.form}>
         <Stack justify="center" mt="xl">
           <Group
@@ -143,7 +153,6 @@ export const FlightSearch = () => {
           </Group>
         </Stack>
       </form>
-      <FlightSearchResults data={flights} loading={loading} />
     </Stack>
   );
 };

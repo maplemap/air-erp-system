@@ -28,6 +28,9 @@ test:
 clean: ## Remove cache
 	find . -name '*.py[co]' -exec rm -f {} \;
 
+clean-db: ## Flush the db
+	docker exec -it air-erp-api python manage.py flush --no-input
+
 install-package:
 	@if [ -z "$(pkg)" ]; then echo "Please provide a package name, e.g., make install-package pkg=<package_name>"; exit 1; fi
 	.venv/bin/pip install $(pkg)

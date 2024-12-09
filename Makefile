@@ -12,6 +12,9 @@ check: ## Run code checks for all applications
 clean: ## Remove cache
 	make -C api clean
 
+clean-db: ## Clean DB
+	make -C api clean-db
+
 fix:
 	make -C api fix
 

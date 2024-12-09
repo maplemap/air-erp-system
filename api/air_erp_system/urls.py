@@ -13,7 +13,9 @@ from .views import (
     FlightDetailsAPIView,
     FlightDeparturesAPI,
     FlightDestinationsAPI,
-    FlightDatesAPI
+    FlightDatesAPI,
+    FlightBookingAPI,
+    PaymentPassengersAPI
 )
 
 auth_patterns = [
@@ -28,14 +30,19 @@ flight_patterns = [
     path('destinations/', FlightDestinationsAPI.as_view(), name='destinations'),
     path('dates/', FlightDatesAPI.as_view(), name='dates'),
     path('search/', FlightSearchAPI.as_view(), name='search'),
-    path('details/', FlightDatesAPI.as_view(), name='details'),
-    # path('booking/', AuthLogoutViewAPI.as_view(), name='logout'),
+    path('details/', FlightDetailsAPIView.as_view(), name='details'),
+    path('booking/', FlightBookingAPI.as_view(), name='booking'),
     # path('check_in/', AuthRefreshTokenView.as_view(), name='refresh_token'),
+]
+
+payment_patterns = [
+    path('passengers/', PaymentPassengersAPI.as_view(), name='passengers'),
 ]
 
 urlpatterns = [
     path('auth/', include((auth_patterns, 'auth_api'), namespace='auth')),
     path('flight/', include((flight_patterns, 'flight_api'), namespace='flight')),
+    path('flight/', include((payment_patterns, 'payment_api'), namespace='payment')),
     path('user/', UserView.as_view(), name='user'),
 ]
 

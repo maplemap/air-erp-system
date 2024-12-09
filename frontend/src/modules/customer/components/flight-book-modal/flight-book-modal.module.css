@@ -1,0 +1,15 @@
+.stepperSteps {
+    position: sticky;
+    top: toRem(60);
+    z-index: 1000;
+    padding: toRem(24) toRem(16);
+    background-color: var(--white100);
+}
+
+.stepperContent {
+    padding-top: toRem(8);
+}
+
+.modaBody {
+    padding: 0;
+}

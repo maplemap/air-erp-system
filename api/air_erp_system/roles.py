@@ -1,4 +1,4 @@
-CUSTOMER = 'customer'
+CUSTOMER = 'flight-search-form'
 GATE_MANAGER = 'gate_manager'
 CHECKIN_MANAGER = 'checkin_manager'
 SUPERVISOR = 'supervisor'

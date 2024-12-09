@@ -59,6 +59,7 @@ export const theme = createTheme({
   },
   components: {
     TextInput: inputTheme,
+    Select: inputTheme,
     PasswordInput: inputTheme,
     Button: buttonTheme,
   },

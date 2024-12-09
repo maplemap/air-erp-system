@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
             flight_code = f"FL-{flight_num:04d}"
 
-            Flight.objects.create(
+            flight = Flight(
                 code=flight_code,
                 departure_place=departure_place,
                 arrival_place=arrival_place,
@@ -48,6 +48,8 @@ class Command(BaseCommand):
                 arrival_time=arrival_time,
                 airplane=airplane,
             )
+            flight.save()
+
             flights_created += 1
 
         self.stdout.write(self.style.SUCCESS(f"Successfully created {flights_created} new flight records."))

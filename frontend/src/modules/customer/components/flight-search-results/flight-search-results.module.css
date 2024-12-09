@@ -1,0 +1,7 @@
+.wrapper {
+    min-height: toRem(50px);
+}
+
+.tableRow {
+    font-size: toRem(16px);
+}

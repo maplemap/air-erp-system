@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
-from air_erp_system.models import Flight, Seat, Ticket, SeatType, Options
+from air_erp_system.models import Flight, Seat, Ticket, SeatType, Options, Passenger
 from air_erp_system.serializers import SignUpSerializer, TicketSerializer, FlightSerializer, UserSerializer, SeatTypeSerializer, OptionsSerializer, SeatSerializer
 from air_erp_system.custom_token import CustomRefreshToken
 from rest_framework.permissions import IsAuthenticated
@@ -115,7 +115,7 @@ class FlightSearchAPI(APIView):
                 date = datetime.strptime(date, "%y/%m/%d").date()
                 filters &= Q(departure_time__date=date)
             except ValueError:
-                return Response({"error": "Invalid date format. Expected format: DD/MM/YY"},
+                return Response({"error": "Invalid date format. Expected format: YY/MM/DD"},
                                 status=status.HTTP_400_BAD_REQUEST)
 
         if passengers:
@@ -123,15 +123,31 @@ class FlightSearchAPI(APIView):
                 passengers = int(passengers)
                 if passengers <= 0:
                     raise ValueError("Passengers must be a positive integer")
-                filters &= Q(airplane__seat_capacity__gte=passengers)
+                filters &= Q(available_seats_count__gte=passengers)
             except ValueError as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         flights = Flight.objects.filter(filters).select_related('airplane')
 
-        serializer = FlightSerializer(flights, many=True)
+        flight_data = []
+        for flight in flights:
+            economy_seat = SeatType.objects.filter(Q(airplanes=flight.airplane) & Q(seat_type=SeatType.ECONOMY_CLASS)).first()
+            economy_price = economy_seat.price if economy_seat else None
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            flight_info = {
+                "id": flight.id,
+                "code": flight.code,
+                "departure_place": flight.departure_place,
+                "arrival_place": flight.arrival_place,
+                "departure_time": flight.departure_time,
+                "arrival_time": flight.arrival_time,
+                "airplane_model": flight.airplane.model,
+                "available_seats": flight.available_seats_count,  # Використовуємо поле
+                "economy_class_price": economy_price,
+            }
+            flight_data.append(flight_info)
+
+        return Response(flight_data, status=status.HTTP_200_OK)
 
 class FlightDetailsAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -147,16 +163,7 @@ class FlightDetailsAPIView(APIView):
         except Flight.DoesNotExist:
             return Response({"error": "Flight does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
-        seat_types = (
-            SeatType.objects.filter(airplanes=flight.airplane)
-            .annotate(
-                available_seats=Count(
-                    'seats',
-                    filter=Q(seats__airplane=flight.airplane, seats__is_booked=False)
-                )
-            )
-            .distinct()
-        )
+        seat_types = SeatType.objects.filter(airplanes=flight.airplane)
 
         options = Options.objects.all()
 
@@ -164,13 +171,14 @@ class FlightDetailsAPIView(APIView):
             {
                 "seat_type": seat_type.seat_type,
                 "price": seat_type.price,
-                "available_seats": seat_type.available_seats,
+                "available_seats": seat_type.available_seats(flight=flight),
             }
             for seat_type in seat_types
         ]
 
         option_data = [
             {
+                "id": option.id,
                 "name": option.name,
                 "price": option.price,
                 "description": option.description,
@@ -178,67 +186,15 @@ class FlightDetailsAPIView(APIView):
             for option in options
         ]
 
+        flight = FlightSerializer(flight)
+
         data = {
+            'flight': flight.data,
             'seat_types': seat_type_data,
             'options': option_data,
         }
 
         return Response(data, status=status.HTTP_200_OK)
-
-class FlightBookingAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        flight_id = request.data.get('flight_id')
-        user = request.user
-        ticket_data = request.data.get('ticket_data')  # first_name, last_name, gender, passport_number, options
-
-        if not flight_id or not ticket_data:
-            return Response(
-                {"error": "Missing required parameters: flight_id or ticket_data"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            flight = Flight.objects.get(id=flight_id)
-        except Flight.DoesNotExist:
-            return Response({"error": "Flight not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        available_seats = Seat.objects.filter(airplane=flight.airplane, is_booked=False).first()
-        if not available_seats:
-            return Response({"error": "No available seats for this flight"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            with transaction.atomic():
-                seat = available_seats
-                seat.is_booked = True
-                seat.save()
-
-                # Створюємо квиток
-                ticket = Ticket.objects.create(
-                    user=user,
-                    flight=flight,
-                    seat=seat,
-                    first_name=ticket_data['first_name'],
-                    last_name=ticket_data['last_name'],
-                    gender=ticket_data['gender'],
-                    passport_number=ticket_data['passport_number'],
-                    price=ticket_data.get('price', 0),  # Розрахунок ціни може бути окремо
-                )
-
-                if 'options' in ticket_data:
-                    ticket.options.add(*ticket_data['options'])
-
-                ticket.save()
-
-                serializer = TicketSerializer(ticket)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        except Exception as e:
-            return Response(
-                {"error": f"An error occurred during ticket booking: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
 
 class FlightDeparturesAPI(APIView):
     permission_classes = [IsAuthenticated]
@@ -290,3 +246,125 @@ class FlightDatesAPI(APIView):
         )
 
         return Response(sorted(dates), status=status.HTTP_200_OK)
+
+class FlightBookingAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        flight_id = request.data.get('flight_id')
+        user = request.user
+        passengers_data = request.data.get('passengers')
+
+        if not flight_id or not passengers_data:
+            return Response(
+                {"error": "Missing required parameters: flight_id or passengers"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            flight = Flight.objects.get(id=flight_id)
+        except Flight.DoesNotExist:
+            return Response({"error": "Flight not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            with transaction.atomic():
+                passengers = []
+                total_price = 0
+
+                for passenger_data in passengers_data:
+                    seat_type_str = passenger_data.get('seatType')
+                    seat_type = SeatType.objects.get(seat_type=seat_type_str)
+
+                    seat = Seat.objects.filter(
+                        flight=flight,
+                        seat_type=seat_type,
+                        is_booked=False
+                    ).first()
+
+                    if not seat:
+                        raise ValueError(f"No available seats of type {seat_type_str} for this flight")
+
+                    seat.is_booked = True
+                    seat.save()
+
+                    seat_price = seat_type.price
+                    option_ids = passenger_data.get('options', [])
+                    options = Options.objects.filter(id__in=option_ids)
+                    options_price = sum(option.price for option in options)
+
+                    total_passenger_price = seat_price + options_price
+
+                    passenger = Passenger.objects.create(
+                        first_name=passenger_data['firstName'],
+                        last_name=passenger_data['lastName'],
+                        gender=passenger_data['gender'],
+                        passport_number=passenger_data['passportNumber'],
+                        is_paid=False,
+                    )
+
+                    passengers.append({
+                        "passenger": passenger,
+                        "price": total_passenger_price
+                    })
+
+                    total_price += total_passenger_price
+
+                flight.update_available_seats()
+
+                passengers_data = [
+                    {
+                        "id": passenger_data["passenger"].id,
+                        "firstName": passenger_data["passenger"].first_name,
+                        "lastName": passenger_data["passenger"].last_name,
+                        "gender": passenger_data["passenger"].gender,
+                        "passportNumber": passenger_data["passenger"].passport_number,
+                        "price": passenger_data["price"],
+                    }
+                    for passenger_data in passengers
+                ]
+
+                return Response({
+                    "passengers": passengers_data,
+                    "total_price": total_price
+                }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {"error": f"An error occurred during booking: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+class PaymentPassengersAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        passenger_ids = request.data.get('passenger_ids')
+
+        if not passenger_ids:
+            return Response(
+                {"error": "Missing required parameter: passenger_ids"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            with transaction.atomic():
+                passengers = Passenger.objects.filter(id__in=passenger_ids, is_paid=False)
+
+                if not passengers.exists():
+                    return Response(
+                        {"error": "No unpaid passengers found with the provided IDs."},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                passengers.update(is_paid=True)  # Проставляємо оплату
+
+                return Response(
+                    {"message": "Payment successful for selected passengers."},
+                    status=status.HTTP_200_OK,
+                )
+
+        except Exception as e:
+            return Response(
+                {"error": f"An error occurred during payment processing: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
