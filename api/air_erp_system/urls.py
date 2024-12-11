@@ -42,7 +42,7 @@ payment_patterns = [
 urlpatterns = [
     path('auth/', include((auth_patterns, 'auth_api'), namespace='auth')),
     path('flight/', include((flight_patterns, 'flight_api'), namespace='flight')),
-    path('flight/', include((payment_patterns, 'payment_api'), namespace='payment')),
+    path('payment/', include((payment_patterns, 'payment_api'), namespace='payment')),
     path('user/', UserView.as_view(), name='user'),
 ]
 

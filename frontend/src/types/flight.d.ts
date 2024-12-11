@@ -23,3 +23,15 @@ type FlightBookingData = {
   seatType: SeatType;
   options: string[];
 };
+
+type FlightBookedPassenger = Passenger & {
+  id: number;
+  seat_type: SeatType;
+  options: string[];
+  price: number;
+};
+
+type FlightBookedData = {
+  passengers: FlightBookedPassenger[];
+  total_price: number;
+};

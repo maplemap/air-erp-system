@@ -10,6 +10,11 @@
     padding-top: toRem(8);
 }
 
+.stepperCompleted {
+    text-align: center;
+    padding: toRem(20) toRem(60) toRem(60) toRem(60);
+}
+
 .modaBody {
     padding: 0;
 }

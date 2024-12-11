@@ -1,7 +1,8 @@
 import {useState} from 'react';
+import {FlightPayment} from '@/modules/customer/components/flight-book-modal/flight-payment';
 import {useFlight} from '@/modules/customer/services/api/adapters';
 import {useCustomerStore} from '@/modules/customer/services/store';
-import {Button, Group, LoadingOverlay, Modal, Stepper, Text} from '@/ui-kit';
+import {Flex, LoadingOverlay, Modal, Stepper, Text} from '@/ui-kit';
 import {FlightBooking} from './flight-booking';
 import styles from './flight-book-modal.module.css';
 
@@ -9,6 +10,9 @@ const MIN_STEP = 0;
 const MAX_STEP = 2;
 
 export const FlightBookModal = () => {
+  const [flightBookedData, setFlightBookedData] = useState<
+    FlightBookedData | undefined
+  >();
   const {bookFlightId, clearBookFlightId, searchParams} = useCustomerStore();
   const {flightDetails} = useFlight(bookFlightId);
   const [active, setActive] = useState(MIN_STEP);
@@ -18,8 +22,20 @@ export const FlightBookModal = () => {
   const passengers = searchParams?.passengers;
   const nextStep = () =>
     setActive((current) => (current < MAX_STEP ? current + 1 : current));
-  const prevStep = () =>
-    setActive((current) => (current > MIN_STEP ? current - 1 : current));
+
+  const onBookingSuccess = (data: FlightBookedData) => {
+    setFlightBookedData(data);
+    nextStep();
+  };
+
+  const onPaymentSuccess = () => {
+    nextStep();
+  };
+
+  const onCloseModal = () => {
+    clearBookFlightId();
+    setActive(MIN_STEP);
+  };
 
   const getModalContent = () => {
     if (flightDetails && passengers) {
@@ -36,13 +52,26 @@ export const FlightBookModal = () => {
               <FlightBooking
                 flightDetails={flightDetails}
                 passengers={passengers}
+                onSuccess={onBookingSuccess}
               />
             </Stepper.Step>
             <Stepper.Step label="Payment">
-              Step 2 content: Verify email
+              {
+                <FlightPayment
+                  data={flightBookedData}
+                  onSuccess={onPaymentSuccess}
+                />
+              }
             </Stepper.Step>
             <Stepper.Completed>
-              Completed, click back button to get to previous step
+              <Flex justify="center" className={styles.stepperCompleted}>
+                <Text size="lg">
+                  The payment was successful.
+                  <br />
+                  You can see the further process of your booking in your
+                  account.
+                </Text>
+              </Flex>
             </Stepper.Completed>
           </Stepper>
         </>
@@ -63,7 +92,7 @@ export const FlightBookModal = () => {
     <Modal
       pos="relative"
       opened={Boolean(bookFlightId)}
-      onClose={() => clearBookFlightId()}
+      onClose={onCloseModal}
       size="70%"
       title={modalTitle}
       overlayProps={{

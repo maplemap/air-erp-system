@@ -36,12 +36,12 @@ class Migration(migrations.Migration):
                     "role",
                     models.CharField(
                         choices=[
-                            ("flight-search-form", "Customer"),
+                            ("customer", "Customer"),
                             ("gate_manager", "Gate Manager"),
                             ("checkin_manager", "Check-in Manager"),
                             ("supervisor", "Supervisor"),
                         ],
-                        default="flight-search-form",
+                        default="customer",
                         max_length=20,
                     ),
                 ),

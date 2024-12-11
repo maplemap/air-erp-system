@@ -10,4 +10,5 @@ export const API_ROUTES = {
   FLIGHT_DATES: '/flight/dates/',
   FLIGHT_BOOKING: '/flight/booking/',
   USER: '/user/',
+  PAYMENT_BOOKING_PAYMENT: '/payment/passengers/',
 };

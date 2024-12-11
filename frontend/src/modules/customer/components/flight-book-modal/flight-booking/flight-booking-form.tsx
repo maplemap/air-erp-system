@@ -1,4 +1,5 @@
 import {useMemo} from 'react';
+import {SEAT_TYPE} from '@/modules/customer/components/flight-book-modal/constants.ts';
 import {getDefaultPrice} from '@/modules/customer/components/flight-book-modal/flight-booking/utils.ts';
 import {
   Button,
@@ -18,12 +19,6 @@ import styles from './flight-booking.module.css';
 const GENDER = {
   MALE: 'Male',
   FEMALE: 'Female',
-};
-
-const SEAT_TYPE: Record<SeatType, string> = {
-  economy_class: 'Economy Class',
-  business_class: 'Business Class',
-  first_class: 'First Class',
 };
 
 export type PassengerFormData = FlightBookingData & {

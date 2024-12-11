@@ -22,6 +22,8 @@ export const PrivatePage = ({
   const decodedToken = jwtDecode<JWTToken>(token);
   const userRole = decodedToken.role as Roles;
 
+  console.log(userRole);
+  console.log(allowedRoles.includes(userRole));
   if (!allowedRoles.includes(userRole)) {
     return <Navigate to={ROUTES.NOT_FOUND} />;
   }

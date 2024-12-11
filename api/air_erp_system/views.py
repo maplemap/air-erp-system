@@ -319,6 +319,11 @@ class FlightBookingAPI(APIView):
                         "gender": passenger_data["passenger"].gender,
                         "passportNumber": passenger_data["passenger"].passport_number,
                         "price": passenger_data["price"],
+                        "seat_type": seat_type.seat_type,
+                        "options": [
+                            option.name
+                            for option in options
+                        ],
                     }
                     for passenger_data in passengers
                 ]
@@ -356,7 +361,7 @@ class PaymentPassengersAPI(APIView):
                         status=status.HTTP_404_NOT_FOUND,
                     )
 
-                passengers.update(is_paid=True)  # Проставляємо оплату
+                passengers.update(is_paid=True)
 
                 return Response(
                     {"message": "Payment successful for selected passengers."},

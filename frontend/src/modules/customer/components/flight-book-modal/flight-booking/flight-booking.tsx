@@ -6,11 +6,13 @@ import {FlightBookingForm} from './flight-booking-form';
 type CheckFlightInfoType = {
   flightDetails: FlightDetails;
   passengers: number;
+  onSuccess: (data: FlightBookedData) => void;
 };
 
 export const FlightBooking = ({
   flightDetails,
   passengers,
+  onSuccess,
 }: CheckFlightInfoType) => {
   const {
     flight: {
@@ -26,9 +28,9 @@ export const FlightBooking = ({
   } = flightDetails;
   const {bookFlight} = useFlight(id);
 
-  const bookTickets = (data: FlightBookingData[]) => {
-    console.log(data);
-    bookFlight(data);
+  const bookTickets = async (data: FlightBookingData[]) => {
+    const bookingData = await bookFlight(data);
+    onSuccess(bookingData);
   };
 
   const description = (
