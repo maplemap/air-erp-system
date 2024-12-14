@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from air_erp_system.models import Options
 
 class Command(BaseCommand):
-    help = "Generate default options for flights"
+    help = "Generate default options for flights-table"
 
     def handle(self, *args, **kwargs):
         options = [

@@ -1,0 +1,18 @@
+.tab {
+    padding: var(--mantine-spacing-md);
+}
+
+.tabList {
+    &:before {
+        border-width: 1px;
+    }
+}
+
+.tabLabel {
+    font-size: var(--mantine-font-size-md);
+}
+
+.tabPanel {
+    font-size: var(--mantine-font-size-md);
+    padding: var(--mantine-spacing-md);
+}

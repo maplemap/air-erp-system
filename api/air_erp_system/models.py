@@ -184,11 +184,19 @@ class Passenger(models.Model):
         (FEMALE, 'Female'),
     ]
 
+    flight = models.ForeignKey(
+        Flight,
+        on_delete=models.CASCADE,
+        related_name='passengers',
+        null=True,
+        blank=True
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='passengers', null=True, blank=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     gender = models.CharField(max_length=30, choices=GENDER_CHOICES)
     passport_number = models.CharField(max_length=25, unique=True)
-    is_paid = models.BooleanField(default=False)  # Поле для відмічення оплати
+    is_paid = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.passport_number})"

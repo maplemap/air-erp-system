@@ -1,2 +1,2 @@
-export * from './flights';
+export * from './flights.ts';
 export * from './flight';

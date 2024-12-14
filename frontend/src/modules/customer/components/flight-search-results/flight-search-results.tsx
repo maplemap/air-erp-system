@@ -24,7 +24,7 @@ export const FlightSearchResults = (props: FlightSearchResultsProps) => {
 
   return (
     <Box pos="relative" className={styles.wrapper}>
-      <LoadingOverlay visible={loading} zIndex={1000} />
+      <LoadingOverlay visible={loading} />
       {getResults()}
     </Box>
   );

@@ -1,1 +1,2 @@
-export {FlightSearchPage} from './flight-search';
+export * from './flight-search';
+export * from './cabinet';

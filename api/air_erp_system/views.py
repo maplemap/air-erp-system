@@ -8,13 +8,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
 from air_erp_system.models import Flight, Seat, Ticket, SeatType, Options, Passenger
-from air_erp_system.serializers import SignUpSerializer, TicketSerializer, FlightSerializer, UserSerializer, SeatTypeSerializer, OptionsSerializer, SeatSerializer
+from air_erp_system.serializers import SignUpSerializer, TicketSerializer, FlightSerializer, UserSerializer, \
+    SeatTypeSerializer, OptionsSerializer, SeatSerializer, PassengersSerializer
 from air_erp_system.custom_token import CustomRefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from datetime import datetime
+from django.utils.timezone import now
 
 
 class AuthSignUpViewAPI(APIView):
@@ -61,7 +63,7 @@ class AuthLogoutViewAPI(APIView):
         except Exception as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class AuthRefreshTokenView(APIView):
+class AuthRefreshTokenViewAPI(APIView):
     def post(self, request, *args, **kwargs):
         refresh_token = request.data.get('refresh')
 
@@ -93,7 +95,7 @@ class UserView(APIView):
 
         return Response(serializer.data, status=200)
 
-class FlightSearchAPI(APIView):
+class FlightSearchViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -149,7 +151,7 @@ class FlightSearchAPI(APIView):
 
         return Response(flight_data, status=status.HTTP_200_OK)
 
-class FlightDetailsAPIView(APIView):
+class FlightDetailsViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -196,7 +198,7 @@ class FlightDetailsAPIView(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-class FlightDeparturesAPI(APIView):
+class FlightDeparturesViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -206,7 +208,7 @@ class FlightDeparturesAPI(APIView):
 
         return Response(sorted(departures), status=status.HTTP_200_OK)
 
-class FlightDestinationsAPI(APIView):
+class FlightDestinationsViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -226,7 +228,7 @@ class FlightDestinationsAPI(APIView):
 
         return Response(sorted(destinations), status=status.HTTP_200_OK)
 
-class FlightDatesAPI(APIView):
+class FlightDatesViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -247,7 +249,7 @@ class FlightDatesAPI(APIView):
 
         return Response(sorted(dates), status=status.HTTP_200_OK)
 
-class FlightBookingAPI(APIView):
+class FlightBookingViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -295,11 +297,13 @@ class FlightBookingAPI(APIView):
                     total_passenger_price = seat_price + options_price
 
                     passenger = Passenger.objects.create(
+                        user=user,
                         first_name=passenger_data['firstName'],
                         last_name=passenger_data['lastName'],
                         gender=passenger_data['gender'],
                         passport_number=passenger_data['passportNumber'],
                         is_paid=False,
+                        flight_id=flight_id
                     )
 
                     passengers.append({
@@ -314,10 +318,10 @@ class FlightBookingAPI(APIView):
                 passengers_data = [
                     {
                         "id": passenger_data["passenger"].id,
-                        "firstName": passenger_data["passenger"].first_name,
-                        "lastName": passenger_data["passenger"].last_name,
+                        "first_name": passenger_data["passenger"].first_name,
+                        "last_name": passenger_data["passenger"].last_name,
                         "gender": passenger_data["passenger"].gender,
-                        "passportNumber": passenger_data["passenger"].passport_number,
+                        "passport_number": passenger_data["passenger"].passport_number,
                         "price": passenger_data["price"],
                         "seat_type": seat_type.seat_type,
                         "options": [
@@ -339,7 +343,7 @@ class FlightBookingAPI(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-class PaymentPassengersAPI(APIView):
+class PaymentPassengersViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -371,5 +375,67 @@ class PaymentPassengersAPI(APIView):
         except Exception as e:
             return Response(
                 {"error": f"An error occurred during payment processing: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+class UserFlightsViewAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        flight_type = request.query_params.get('type', 'all')
+
+        try:
+            flights = Flight.objects.filter(passengers__user=user).distinct()
+
+            if flight_type == 'past':
+                flights = flights.filter(departure_time__lt=now())
+            elif flight_type == 'future':
+                flights = flights.filter(departure_time__gte=now())
+
+            serializer = FlightSerializer(flights, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": f"An error occurred while fetching flights: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+class UserPassengersViewAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+
+        try:
+            # Отримуємо всіх пасажирів, які пов'язані з залогіненим користувачем
+            passengers = Passenger.objects.filter(user=user).select_related('flight')
+
+            data = []
+            for passenger in passengers:
+                data.append({
+                    "id": passenger.id,
+                    "first_name": passenger.first_name,
+                    "last_name": passenger.last_name,
+                    "gender": passenger.gender,
+                    "passport_number": passenger.passport_number,
+                    "is_paid": passenger.is_paid,
+                    "flight": {
+                        "id": passenger.flight.id,
+                        "code": passenger.flight.code,
+                        "departure_place": passenger.flight.departure_place,
+                        "arrival_place": passenger.flight.arrival_place,
+                        "departure_time": passenger.flight.departure_time,
+                        "arrival_time": passenger.flight.arrival_time,
+                    }
+                })
+
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": f"An error occurred while fetching passengers: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

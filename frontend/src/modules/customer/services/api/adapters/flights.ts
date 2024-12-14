@@ -97,7 +97,7 @@ export const useSearchFlights = () => {
         setLoading(false);
       }
     },
-    [],
+    [setSearchParams],
   );
 
   return {

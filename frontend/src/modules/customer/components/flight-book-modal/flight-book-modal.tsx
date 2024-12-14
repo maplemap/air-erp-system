@@ -78,7 +78,7 @@ export const FlightBookModal = () => {
       );
     }
 
-    return <LoadingOverlay visible={true} zIndex={1000} />;
+    return <LoadingOverlay visible={true} />;
   };
 
   const modalTitle = (

@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
         existing_flights = Flight.objects.count()
         if existing_flights >= 50:
-            self.stdout.write(self.style.WARNING("50 or more flights already exist. No new flights created."))
+            self.stdout.write(self.style.WARNING("50 or more flights-table already exist. No new flights-table created."))
             return
 
         flights_to_create = 50 - existing_flights

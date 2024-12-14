@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from air_erp_system.models import User, Flight, Options, SeatType, Seat
+from air_erp_system.models import User, Flight, Options, SeatType, Seat, Passenger
 from air_erp_system.models import Ticket
 
 
@@ -60,4 +60,9 @@ class SeatTypeSerializer(serializers.ModelSerializer):
 class SeatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seat
+        fields = '__all__'
+
+class PassengersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Passenger
         fields = '__all__'

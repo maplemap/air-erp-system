@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 
 class Command(BaseCommand):
-    help = "Generate 10 random airplane records, their flights, and seats"
+    help = "Generate 10 random airplane records, their flights-table, and seats"
 
     def handle(self, *args, **kwargs):
         seat_types = SeatType.objects.all()
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             )
             self.generate_seats_for_flight(flight, seat_types)
 
-        self.stdout.write(self.style.SUCCESS(f"Generated {flight_created} flights for airplane: {airplane.model}"))
+        self.stdout.write(self.style.SUCCESS(f"Generated {flight_created} flights-table for airplane: {airplane.model}"))
 
     def generate_seats_for_flight(self, flight, seat_types):
         seat_number = 1

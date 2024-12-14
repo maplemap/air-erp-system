@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                     "airplane",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="flights",
+                        related_name="flights-table",
                         to="air_erp_system.airplane",
                     ),
                 ),

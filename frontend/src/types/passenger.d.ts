@@ -2,8 +2,9 @@ type Gender = 'Male' | 'Female';
 
 type Passenger = {
   id: number;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   gender: Gender;
-  passportNumber: string;
+  passport_number: string;
+  is_paid: boolean;
 };

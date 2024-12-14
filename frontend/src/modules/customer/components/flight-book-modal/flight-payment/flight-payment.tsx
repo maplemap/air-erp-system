@@ -50,7 +50,7 @@ export const FlightPayment = (props: CheckFlightInfoType) => {
       </Text>
       {passengers.map(
         (
-          {id, firstName, lastName, passportNumber, seat_type, options},
+          {id, first_name, last_name, passport_number, seat_type, options},
           index,
         ) => (
           <Card key={id} shadow="sm" padding="md" radius="md" withBorder>
@@ -62,7 +62,7 @@ export const FlightPayment = (props: CheckFlightInfoType) => {
                 <Flex align="center">
                   Passport number:
                   <Text ml="sm" fw={600}>
-                    {passportNumber}
+                    {passport_number}
                   </Text>
                 </Flex>
               </List.Item>
@@ -70,7 +70,7 @@ export const FlightPayment = (props: CheckFlightInfoType) => {
                 <Flex align="center">
                   First name:{' '}
                   <Text ml="sm" fw={600}>
-                    {firstName}
+                    {first_name}
                   </Text>
                 </Flex>
               </List.Item>
@@ -78,7 +78,7 @@ export const FlightPayment = (props: CheckFlightInfoType) => {
                 <Flex align="center">
                   Last name:{' '}
                   <Text ml="sm" fw={600}>
-                    {lastName}
+                    {last_name}
                   </Text>
                 </Flex>
               </List.Item>

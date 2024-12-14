@@ -1,7 +1,6 @@
 import {useCallback} from 'react';
 import {STORAGE_KEY} from '@/constants.ts';
 import {useUser} from '@/services/api/adapters/user.ts';
-import {useAppStore} from '@/services/store';
 import {API_ROUTES} from '../../api/constants';
 import {apiService} from '../api';
 
@@ -22,8 +21,7 @@ const saveTokens = (accessToken: string, refreshToken: string) => {
 };
 
 export const useAuth = () => {
-  const {setUser} = useAppStore();
-  const {getUser} = useUser();
+  const {getUser, setUser} = useUser();
 
   const getUserData = useCallback(async () => {
     const user = await getUser();
