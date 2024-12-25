@@ -9,6 +9,7 @@ export const API_ROUTES = {
   FLIGHT_DESTINATIONS: '/flight/destinations/',
   FLIGHT_DATES: '/flight/dates/',
   FLIGHT_BOOKING: '/flight/booking/',
+  FLIGHT_CHECK_IN: '/flight/check-in/',
   USER: '/user/',
   USER_FLIGHTS: '/user/flights/',
   USER_PASSENGERS: '/user/passengers/',

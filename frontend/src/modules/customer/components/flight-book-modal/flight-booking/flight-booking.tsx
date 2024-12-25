@@ -7,6 +7,7 @@ type CheckFlightInfoType = {
   flightDetails: FlightDetails;
   passengers: number;
   onSuccess: (data: FlightBookedData) => void;
+  onError: () => void;
 };
 
 export const FlightBooking = ({
@@ -26,11 +27,13 @@ export const FlightBooking = ({
     options,
     seat_types: seatTypes,
   } = flightDetails;
-  const {bookFlight} = useFlight(id);
+  const {bookFlight} = useFlight();
 
   const bookTickets = async (data: FlightBookingData[]) => {
-    const bookingData = await bookFlight(data);
-    onSuccess(bookingData);
+    const bookingData = await bookFlight(id, data);
+    if (bookingData) {
+      onSuccess(bookingData);
+    }
   };
 
   const description = (

@@ -17,7 +17,8 @@ from .views import (
     FlightBookingViewAPI,
     PaymentPassengersViewAPI,
     UserFlightsViewAPI,
-    UserPassengersViewAPI
+    UserPassengersViewAPI,
+    FlightCheckInViewAPI
 )
 
 auth_patterns = [
@@ -34,7 +35,7 @@ flight_patterns = [
     path('search/', FlightSearchViewAPI.as_view(), name='search'),
     path('details/', FlightDetailsViewAPI.as_view(), name='details'),
     path('booking/', FlightBookingViewAPI.as_view(), name='booking'),
-    # path('check_in/', AuthRefreshTokenView.as_view(), name='refresh_token'),
+    path('check-in/', FlightCheckInViewAPI.as_view(), name='checkin'),
 ]
 
 payment_patterns = [

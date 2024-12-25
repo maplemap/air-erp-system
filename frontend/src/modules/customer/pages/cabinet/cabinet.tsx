@@ -1,7 +1,9 @@
 import {useEffect, useState} from 'react';
 import {FlightsTable, PassengersTable} from '@/modules/customer/components/';
+import {useFlight} from '@/modules/customer/services/api/adapters';
+import {usePayment} from '@/modules/customer/services/api/adapters/payment.ts';
 import {useUser} from '@/modules/customer/services/api/adapters/user.ts';
-import {Box, LoadingOverlay, Tabs} from '@/ui-kit';
+import {Box, Button, LoadingOverlay, Table, Tabs} from '@/ui-kit';
 import styles from './cabinet.module.css';
 
 const TABS_KEYS = {
@@ -23,6 +25,8 @@ export const CabinetPage = () => {
     passengers,
     loading,
   } = useUser();
+  const {bookingPayment} = usePayment();
+  const {checkInOnFlight} = useFlight();
 
   useEffect(() => {
     switch (activeTab) {
@@ -36,7 +40,48 @@ export const CabinetPage = () => {
         getPassengers();
         break;
     }
-  }, [activeTab, getFutureFlights, getPreviousFlights]);
+  }, [activeTab, getFutureFlights, getPassengers, getPreviousFlights]);
+
+  const getPassengersTable = () => {
+    const renderExtraHeadRow = () => <Table.Th />;
+
+    const renderExtraRow = (passengerData: Passenger | UserPassenger) => {
+      const {is_paid, id, is_checked_in} = passengerData as UserPassenger;
+
+      if (is_checked_in) {
+        return null;
+      }
+
+      const buttonLabel = !is_paid ? 'Pay' : 'Check-In';
+      const makePayment = async (id: number) => {
+        await bookingPayment([id]);
+        await getPassengers();
+      };
+      const makeCheckIn = async (id: number) => {
+        await checkInOnFlight([id]);
+        await getPassengers();
+      };
+      const buttonHandler = !is_paid
+        ? () => makePayment(id)
+        : () => makeCheckIn(id);
+
+      return (
+        <Table.Td>
+          <Button size="compact-md" onClick={buttonHandler}>
+            {buttonLabel}
+          </Button>
+        </Table.Td>
+      );
+    };
+
+    return (
+      <PassengersTable
+        data={passengers}
+        renderExtraHeadRow={renderExtraHeadRow}
+        renderExtraRow={renderExtraRow}
+      />
+    );
+  };
 
   return (
     <Box>
@@ -67,7 +112,7 @@ export const CabinetPage = () => {
           <FlightsTable data={futureFlights} />
         </Tabs.Panel>
         <Tabs.Panel value={TABS_KEYS.CHECK_IN}>
-          <PassengersTable data={passengers} />
+          {getPassengersTable()}
         </Tabs.Panel>
       </Tabs>
     </Box>

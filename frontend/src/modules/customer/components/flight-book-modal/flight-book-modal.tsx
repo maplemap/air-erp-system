@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {FlightPayment} from '@/modules/customer/components/flight-book-modal/flight-payment';
 import {useFlight} from '@/modules/customer/services/api/adapters';
 import {useCustomerStore} from '@/modules/customer/services/store';
@@ -13,11 +13,21 @@ export const FlightBookModal = () => {
   const [flightBookedData, setFlightBookedData] = useState<
     FlightBookedData | undefined
   >();
+  const {flightDetails, setFlightDetails} = useCustomerStore();
   const {bookFlightId, clearBookFlightId, searchParams} = useCustomerStore();
-  const {flightDetails} = useFlight(bookFlightId);
+  const {getFlightDetails} = useFlight();
   const [active, setActive] = useState(MIN_STEP);
 
   const {flight} = flightDetails || {};
+
+  useEffect(() => {
+    (async () => {
+      if (bookFlightId) {
+        const data = await getFlightDetails(bookFlightId);
+        setFlightDetails(data);
+      }
+    })();
+  }, [bookFlightId, getFlightDetails, setFlightDetails]);
 
   const passengers = searchParams?.passengers;
   const nextStep = () =>
@@ -53,6 +63,7 @@ export const FlightBookModal = () => {
                 flightDetails={flightDetails}
                 passengers={passengers}
                 onSuccess={onBookingSuccess}
+                onError={onCloseModal}
               />
             </Stepper.Step>
             <Stepper.Step label="Payment">

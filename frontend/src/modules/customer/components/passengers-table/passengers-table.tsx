@@ -3,14 +3,14 @@ import {formatDateToFlightFormat} from '@/libs/date.ts';
 import {Center, Table} from '@/ui-kit';
 import styles from './passengers-table.module.css';
 
-type PassengersTableDataItem = Passenger & {
+type PassengersTableDataItem = (Passenger | UserPassenger) & {
   flight: Flight;
 };
 
 type PassengersTableProps = {
   data: PassengersTableDataItem[];
   renderExtraHeadRow?: () => ReactNode;
-  renderExtraRow?: (passenger: Passenger) => ReactNode;
+  renderExtraRow?: (passenger: Passenger | UserPassenger) => ReactNode;
 };
 
 export const PassengersTable = (props: PassengersTableProps) => {

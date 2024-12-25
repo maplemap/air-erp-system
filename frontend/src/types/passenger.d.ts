@@ -8,3 +8,7 @@ type Passenger = {
   passport_number: string;
   is_paid: boolean;
 };
+
+type UserPassenger = Passenger & {
+  is_checked_in: boolean;
+};

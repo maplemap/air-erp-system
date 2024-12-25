@@ -343,6 +343,83 @@ class FlightBookingViewAPI(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+class FlightCheckInViewAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        passenger_ids = request.data.get('passenger_ids')
+
+        if not passenger_ids:
+            return Response(
+                {"error": "Missing required parameter: passenger_ids"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            with transaction.atomic():
+                passengers = Passenger.objects.filter(id__in=passenger_ids)
+
+                if not passengers.exists():
+                    return Response(
+                        {"error": "No passengers found with the provided IDs."},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                tickets = []
+                for passenger in passengers:
+                    flight = passenger.flight
+
+                    # Знаходимо вільне місце для рейсу
+                    seat = Seat.objects.filter(
+                        flight=flight,
+                        is_booked=False
+                    ).first()
+
+                    if not seat:
+                        raise ValueError(f"No available seats for flight {flight.code}")
+
+                    # Оновлюємо статус місця
+                    seat.is_booked = True
+                    seat.save()
+
+                    # Створюємо квиток
+                    ticket = Ticket.objects.create(
+                        user=request.user,
+                        flight=flight,
+                        passenger=passenger,
+                        seat=seat,
+                        ticket_number=f"{flight.code}-{passenger.id}",
+                        price=seat.seat_type.price,
+                    )
+                    tickets.append(ticket)
+
+                ticket_data = [
+                    {
+                        "id": ticket.id,
+                        "ticket_number": ticket.ticket_number,
+                        "flight_code": ticket.flight.code,
+                        "passenger_id": ticket.passenger.id,
+                        "seat_number": ticket.seat.seat_number,
+                        "status": "Checked-in",
+                        "price": ticket.price,
+                    }
+                    for ticket in tickets
+                ]
+
+                return Response(
+                    {"message": "Check-in successful", "tickets": ticket_data},
+                    status=status.HTTP_200_OK,
+                )
+
+        except ValueError as ve:
+            return Response({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response(
+                {"error": f"An error occurred during check-in: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
 class PaymentPassengersViewAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -410,11 +487,12 @@ class UserPassengersViewAPI(APIView):
         user = request.user
 
         try:
-            # Отримуємо всіх пасажирів, які пов'язані з залогіненим користувачем
             passengers = Passenger.objects.filter(user=user).select_related('flight')
 
             data = []
             for passenger in passengers:
+                is_checked_in = Ticket.objects.filter(passenger=passenger).exists()
+
                 data.append({
                     "id": passenger.id,
                     "first_name": passenger.first_name,
@@ -422,6 +500,7 @@ class UserPassengersViewAPI(APIView):
                     "gender": passenger.gender,
                     "passport_number": passenger.passport_number,
                     "is_paid": passenger.is_paid,
+                    "is_checked_in": is_checked_in,
                     "flight": {
                         "id": passenger.flight.id,
                         "code": passenger.flight.code,

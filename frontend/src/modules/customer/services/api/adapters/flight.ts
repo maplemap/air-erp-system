@@ -1,13 +1,11 @@
-import {useCallback, useEffect, useState} from 'react';
-import {useCustomerStore} from '@/modules/customer/services/store';
+import {useCallback, useState} from 'react';
 import {API_ROUTES, apiService} from '@/services/api';
-import {logger} from '@/utils/logger';
+import {catchError} from '@/utils/catch-error.ts';
 
-export const useFlight = (flightId: string | null) => {
+export const useFlight = () => {
   const [loading, setLoading] = useState(false);
-  const {flightDetails, setFlightDetails} = useCustomerStore();
 
-  const getFlightDetails = useCallback(async () => {
+  const getFlightDetails = useCallback(async (flightId: string) => {
     setLoading(true);
 
     try {
@@ -15,22 +13,16 @@ export const useFlight = (flightId: string | null) => {
         flight_id: flightId,
       });
 
-      setFlightDetails(data);
+      return data;
     } catch (e) {
-      logger.error(e);
+      catchError(e);
     } finally {
       setLoading(false);
     }
-  }, [flightId, setFlightDetails]);
-
-  useEffect(() => {
-    if (!flightDetails && flightId) {
-      getFlightDetails();
-    }
-  }, [flightDetails, flightId, getFlightDetails]);
+  }, []);
 
   const bookFlight = useCallback(
-    async (passengersData: FlightBookingData[]) => {
+    async (flightId: string, passengersData: FlightBookingData[]) => {
       setLoading(true);
 
       try {
@@ -41,13 +33,32 @@ export const useFlight = (flightId: string | null) => {
 
         return data;
       } catch (e) {
-        logger.error(e);
+        catchError(e);
       } finally {
         setLoading(false);
       }
     },
-    [flightId],
+    [],
   );
 
-  return {loading, getFlightDetails, flightDetails, bookFlight};
+  const checkInOnFlight = useCallback(async (passengersId: number[]) => {
+    setLoading(true);
+
+    try {
+      await apiService.post(API_ROUTES.FLIGHT_CHECK_IN, {
+        passenger_ids: passengersId,
+      });
+    } catch (e) {
+      catchError(e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    loading,
+    getFlightDetails,
+    bookFlight,
+    checkInOnFlight,
+  };
 };

@@ -1,5 +1,6 @@
-import {Box, Center, LoadingOverlay} from '@/ui-kit';
-import {FlightSearchResultsTable} from './flight-search-results-table.tsx';
+import {FlightsTable} from '@/modules/customer/components';
+import {useCustomerStore} from '@/modules/customer/services/store';
+import {Box, Button, Center, LoadingOverlay, Table} from '@/ui-kit';
 import styles from './flight-search-results.module.css';
 
 type FlightSearchResultsProps = {
@@ -9,6 +10,7 @@ type FlightSearchResultsProps = {
 
 export const FlightSearchResults = (props: FlightSearchResultsProps) => {
   const {data, loading} = props;
+  const {setBookFlightId} = useCustomerStore();
 
   const getResults = () => {
     if (!data) {
@@ -19,7 +21,19 @@ export const FlightSearchResults = (props: FlightSearchResultsProps) => {
       return <Center>No flights were found. Please try again</Center>;
     }
 
-    return <FlightSearchResultsTable data={data} />;
+    return (
+      <FlightsTable
+        data={data}
+        renderExtraHeadRow={() => <Table.Th />}
+        renderExtraRow={({id}) => (
+          <Table.Td>
+            <Button size="compact-md" onClick={() => setBookFlightId(id)}>
+              Book
+            </Button>
+          </Table.Td>
+        )}
+      />
+    );
   };
 
   return (
