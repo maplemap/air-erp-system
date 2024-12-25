@@ -1,6 +1,7 @@
 import {useCallback} from 'react';
 import {STORAGE_KEY} from '@/constants.ts';
 import {useUser} from '@/services/api/adapters/user.ts';
+import {catchError} from '@/utils/catch-error.ts';
 import {API_ROUTES} from '../../api/constants';
 import {apiService} from '../api';
 
@@ -38,8 +39,8 @@ export const useAuth = () => {
 
         saveTokens(data.access, data.refresh);
         getUserData();
-      } catch (error) {
-        console.error('Login error:', error);
+      } catch (e) {
+        catchError(e);
       }
     },
     [getUserData],

@@ -2,6 +2,7 @@ import {useCallback} from 'react';
 import {apiService} from '@/services/api';
 import {API_ROUTES} from '@/services/api/constants.ts';
 import {useAppStore} from '@/services/store';
+import {catchError} from '@/utils/catch-error.ts';
 
 export const useUser = () => {
   const {user, setUser} = useAppStore();
@@ -11,8 +12,8 @@ export const useUser = () => {
       const {data} = await apiService.get(API_ROUTES.USER);
 
       return data;
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (e) {
+      catchError(e);
     }
   }, []);
 

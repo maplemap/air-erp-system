@@ -1,5 +1,5 @@
 import {Outlet} from 'react-router-dom';
-import {ErrorBoundary, Header} from '@/components';
+import {ErrorBoundary, ErrorModalModule, Header} from '@/components';
 import {AppShell} from '@/ui-kit';
 
 export const PrimaryLayout = () => (
@@ -14,5 +14,6 @@ export const PrimaryLayout = () => (
         <Outlet />
       </ErrorBoundary>
     </AppShell.Main>
+    <ErrorModalModule />
   </AppShell>
 );

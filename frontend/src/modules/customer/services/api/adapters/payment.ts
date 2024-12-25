@@ -1,6 +1,6 @@
 import {useCallback, useState} from 'react';
 import {API_ROUTES, apiService} from '@/services/api';
-import {logger} from '@/utils/logger.ts';
+import {catchError} from '@/utils/catch-error.ts';
 
 export const usePayment = () => {
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export const usePayment = () => {
         passenger_ids: passengersId,
       });
     } catch (e) {
-      logger.error(e);
+      catchError(e);
     } finally {
       setLoading(false);
     }

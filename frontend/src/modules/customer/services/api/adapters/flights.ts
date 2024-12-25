@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
 import {useCustomerStore} from '@/modules/customer/services/store';
 import {API_ROUTES, apiService} from '@/services/api';
-import {logger} from '@/utils/logger';
+import {catchError} from '@/utils/catch-error.ts';
 
 export const PASSENGERS_COUNT_DEFAULT = 1;
 
@@ -29,7 +29,7 @@ export const useSearchFlights = () => {
 
       setDates(data);
     } catch (e) {
-      logger.error(e);
+      catchError(e);
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export const useSearchFlights = () => {
 
       setDestinations(data);
     } catch (e) {
-      logger.error(e);
+      catchError(e);
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ export const useSearchFlights = () => {
 
       setDepartures(data);
     } catch (e) {
-      logger.error(e);
+      catchError(e);
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ export const useSearchFlights = () => {
 
         setFlights(data);
       } catch (e) {
-        logger.error(e);
+        catchError(e);
       } finally {
         setLoading(false);
       }

@@ -1,6 +1,6 @@
 import {useCallback, useState} from 'react';
 import {API_ROUTES, apiService} from '@/services/api';
-import {logger} from '@/utils/logger.ts';
+import {catchError} from '@/utils/catch-error.ts';
 
 export const useUser = () => {
   const [passengers, setPassengers] = useState([]);
@@ -18,7 +18,7 @@ export const useUser = () => {
 
       return data;
     } catch (e) {
-      logger.error(e);
+      catchError(e);
     } finally {
       setLoading(false);
     }
@@ -31,11 +31,11 @@ export const useUser = () => {
       const {data} = await apiService.get(API_ROUTES.USER_PASSENGERS);
       setPassengers(data);
     } catch (e) {
-      logger.error(e);
+      catchError(e);
     } finally {
       setLoading(false);
     }
-  }, [getUserFlights]);
+  }, []);
 
   const getFutureFlights = useCallback(async () => {
     const flights = await getUserFlights('future');
